@@ -6,6 +6,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class BottomNavItem(val title: String, val icon: ImageVector, val screenRoute: String) {
-    object CryptoList : BottomNavItem("Crypto", Icons.Filled.Home, Routes.CryptoList)
+    object CryptoList : BottomNavItem("Crypto", Icons.Filled.Home, Routes.Dashboard)
     object FavouriteCrypto : BottomNavItem("Favorite", Icons.Filled.FavoriteBorder, Routes.FavouriteCrypto)
 }

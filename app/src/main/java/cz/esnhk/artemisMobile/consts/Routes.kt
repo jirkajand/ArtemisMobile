@@ -1,7 +1,7 @@
 package cz.esnhk.artemisMobile.consts
 
 object Routes {
-    const val CryptoList = "cryptoList"
+    const val Dashboard = "cryptoList"
     const val CryptoDetail = "cryptoDetail/{cryptoId}"
     const val FavouriteCrypto = "favouriteCrypto"
     const val Settings = "settings"

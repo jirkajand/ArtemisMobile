@@ -6,11 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -28,39 +28,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import cz.esnhk.artemisMobile.consts.Routes
 import cz.esnhk.artemisMobile.ui.theme.ArtemisMobileTheme
 import kotlinx.coroutines.launch
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import cz.esnhk.artemisMobile.screens.Dashboard
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        startKoin { //inicializace DI
+            androidContext(this@MainActivity)
+            modules(
+                viewModelModule
+            ) //nastaveni modulu (ze souboru AppModules)
+        }
         enableEdgeToEdge()
         setContent {
-            MainScreen()
+            val navController = rememberNavController()
+            MainScreen(navController)
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ArtemisMobileTheme {
-        Greeting("Android")
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
-    val drawerState = rememberDrawerState(DrawerValue.Closed) //Control whether the drawer (side menu) is open or closed.
+fun MainScreen(navController: NavHostController) {
+    val drawerState =
+        rememberDrawerState(DrawerValue.Closed) //Control whether the drawer (side menu) is open or closed.
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
@@ -82,7 +82,7 @@ fun MainScreen() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("My App") },
+                    title = { Text("Artemis mobile legendary") },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch { drawerState.open() }
@@ -92,11 +92,12 @@ fun MainScreen() {
                     }
                 )
             }
-        ) { padding ->
+        ) { innerPadding ->
             // Your screen content
-            Box(modifier = Modifier.padding(padding)) {
-                Text("Main Content Here")
+            Box(modifier = Modifier.padding(innerPadding)) {
+                Text("Welcome to app!")
             }
+            Navigation(navController = navController, innerPadding = innerPadding)
         }
     }
 }
@@ -110,4 +111,23 @@ fun DrawerItem(text: String, onClick: () -> Unit) {
             .clickable(onClick = onClick)
             .padding(16.dp)
     )
+}
+
+@Composable
+fun Navigation(navController: NavHostController, innerPadding: PaddingValues) {
+    NavHost(
+        navController = navController,
+        startDestination = Routes.Dashboard,
+        modifier = Modifier.padding(innerPadding)
+    ) {
+        composable(Routes.Dashboard) { Dashboard(navController) }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    ArtemisMobileTheme {
+        MainScreen(rememberNavController())
+    }
 }
