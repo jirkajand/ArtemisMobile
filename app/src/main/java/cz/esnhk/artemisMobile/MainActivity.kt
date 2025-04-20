@@ -73,9 +73,22 @@ fun MainScreen(navController: NavHostController) {
                     fontWeight = FontWeight.Bold
                 )
                 HorizontalDivider()
-                DrawerItem("Home") { /* handle click */ }
-                DrawerItem("Profile") { /* handle click */ }
-                DrawerItem("Settings") { /* handle click */ }
+                DrawerItem("Dashboard") {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(Routes.Dashboard)
+                }
+                DrawerItem("My students") {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(Routes.MyStudents)
+                }
+                DrawerItem("Events") {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(Routes.Events)
+                }
+                DrawerItem("Semester info") {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(Routes.SemesterInfo)
+                }
             }
         }
     ) {
@@ -121,6 +134,9 @@ fun Navigation(navController: NavHostController, innerPadding: PaddingValues) {
         modifier = Modifier.padding(innerPadding)
     ) {
         composable(Routes.Dashboard) { Dashboard(navController) }
+        composable(Routes.MyStudents) { Dashboard(navController) }
+        composable(Routes.Events) { Dashboard(navController) }
+        composable(Routes.SemesterInfo) { Dashboard(navController) }
     }
 }
 

@@ -2,6 +2,10 @@ package cz.esnhk.artemisMobile.consts
 
 object Routes {
     const val Dashboard = "cryptoList"
+    const val MyStudents = "myStudents"
+    const val Events = "events"
+    const val SemesterInfo = "semesterInfo"
+
     const val CryptoDetail = "cryptoDetail/{cryptoId}"
     const val FavouriteCrypto = "favouriteCrypto"
     const val Settings = "settings"
