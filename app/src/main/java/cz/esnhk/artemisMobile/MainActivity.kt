@@ -38,6 +38,7 @@ import org.koin.core.context.startKoin
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import cz.esnhk.artemisMobile.screens.Dashboard
+import cz.esnhk.artemisMobile.screens.MyStudents
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -134,7 +135,7 @@ fun Navigation(navController: NavHostController, innerPadding: PaddingValues) {
         modifier = Modifier.padding(innerPadding)
     ) {
         composable(Routes.Dashboard) { Dashboard(navController) }
-        composable(Routes.MyStudents) { Dashboard(navController) }
+        composable(Routes.MyStudents) { MyStudents(navController) }
         composable(Routes.Events) { Dashboard(navController) }
         composable(Routes.SemesterInfo) { Dashboard(navController) }
     }

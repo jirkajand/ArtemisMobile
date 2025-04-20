@@ -32,16 +32,12 @@ import androidx.navigation.NavController
 import cz.esnhk.artemisMobile.items.StudentItem
 import cz.esnhk.artemisMobile.repository.StudentRepository
 
-
 @Composable
-fun Dashboard(
+fun MyStudents(
     navController: NavController
 ) {
-
     var selectedSemester by remember { mutableStateOf(0) }
-    var selectedFaculty by remember { mutableStateOf(0) }
     var isSemesterDropdownExpanded by remember { mutableStateOf(false) }
-    var isFacultyDropdownExpanded by remember { mutableStateOf(false) }
 
     // Sample data for semesters and faculties (replace with your actual data)
     val semesters = mapOf(
@@ -58,19 +54,19 @@ fun Dashboard(
     )
 
 
-    val studentList = StudentRepository.getStudentList()
-    val filteredStudentList = remember(studentList, selectedSemester, selectedFaculty) {
-        if (selectedSemester == 0 && selectedFaculty == 0) {
+    val studentList = StudentRepository.getStudentByBuddyId(1) //TODO Get current user
+    val filteredStudentList = remember(studentList, selectedSemester) {
+        if (selectedSemester == 0) {
             studentList
         } else {
             studentList.filter { student ->
-                (selectedSemester == 0 || student.semesters.contains(selectedSemester)) &&
-                        (selectedFaculty == 0 || student.faculty == selectedFaculty)
+                (selectedSemester == 0 || student.semesters.contains(selectedSemester))
             }
         }
     }
+
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("Dashboard")
+        Text("My Students")
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
@@ -106,36 +102,10 @@ fun Dashboard(
             }
 
             Spacer(modifier = Modifier.width(8.dp))
-
-            // Faculty Dropdown
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { isFacultyDropdownExpanded = true }
-                    .padding(16.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp)),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(faculties[selectedFaculty] ?: "Select Faculty")
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Open Faculty Dropdown")
-            }
-            DropdownMenu(
-                expanded = isFacultyDropdownExpanded,
-                onDismissRequest = { isFacultyDropdownExpanded = false },
-            ) {
-                faculties.forEach { (facultyId, facultyName) ->
-                    DropdownMenuItem(
-                        text = { Text(facultyName) },
-                        onClick = {
-                            selectedSemester = facultyId
-                            isSemesterDropdownExpanded = false
-                        }
-                    )
-                }
-            }
         }
-        LazyColumn {  // Use LazyColumn
+
+
+        LazyColumn {
             items(filteredStudentList) { student ->
                 StudentItem(student, navController)
             }

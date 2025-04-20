@@ -137,12 +137,12 @@ object StudentRepository {
         )
     )
 
-    fun getCryptoList(): List<InternationalStudent> {
+    fun getStudentList(): List<InternationalStudent> {
         return cryptoList
     }
 
-    fun getCryptoById(id: Int): InternationalStudent? {
-        return cryptoList.find { it.id == id }
+    fun getStudentByBuddyId(id: Int): List<InternationalStudent> {
+        return cryptoList.filter { it.assignedBuddy == id }
     }
 
 
