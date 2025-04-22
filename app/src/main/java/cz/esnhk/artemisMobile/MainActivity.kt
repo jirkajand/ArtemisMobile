@@ -38,6 +38,7 @@ import org.koin.core.context.startKoin
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import cz.esnhk.artemisMobile.screens.Dashboard
+import cz.esnhk.artemisMobile.screens.EventScreen
 import cz.esnhk.artemisMobile.screens.MyStudents
 import cz.esnhk.artemisMobile.screens.SemesterInfo
 
@@ -137,7 +138,7 @@ fun Navigation(navController: NavHostController, innerPadding: PaddingValues) {
     ) {
         composable(Routes.Dashboard) { Dashboard(navController) }
         composable(Routes.MyStudents) { MyStudents(navController) }
-        composable(Routes.Events) { Dashboard(navController) }
+        composable(Routes.Events) { EventScreen(navController) }
         composable(Routes.SemesterInfo) { SemesterInfo(navController) }
     }
 }
