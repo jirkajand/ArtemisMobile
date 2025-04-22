@@ -1,4 +1,4 @@
-package cz.esnhk.artemisMobile
+package cz.esnhk.artemisMobile.entities
 
 import com.google.gson.annotations.SerializedName
 
@@ -34,4 +34,3 @@ data class InternationalStudent(
     @SerializedName("user_permissions") val userPermissions: List<Int>,
     @SerializedName("semesters") val semesters: List<Int>
 )
-

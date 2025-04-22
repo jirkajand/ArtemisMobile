@@ -3,7 +3,7 @@ package cz.esnhk.artemisMobile.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cz.esnhk.artemisMobile.InternationalStudent
+import cz.esnhk.artemisMobile.entities.InternationalStudent
 import cz.esnhk.artemisMobile.api.ApiResult
 import cz.esnhk.artemisMobile.api.ArtemisApi
 import kotlinx.coroutines.flow.MutableStateFlow

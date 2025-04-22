@@ -1,8 +1,6 @@
 package cz.esnhk.artemisMobile.api
-import cz.esnhk.artemisMobile.InternationalStudent
+import cz.esnhk.artemisMobile.entities.InternationalStudent
 import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
 import retrofit2.Response
 
 

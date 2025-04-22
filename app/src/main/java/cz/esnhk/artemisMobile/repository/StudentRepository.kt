@@ -1,6 +1,6 @@
 package cz.esnhk.artemisMobile.repository
 
-import cz.esnhk.artemisMobile.InternationalStudent
+import cz.esnhk.artemisMobile.entities.InternationalStudent
 
 
 object StudentRepository {
