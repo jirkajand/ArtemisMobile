@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cz.esnhk.artemisMobile.api.ApiClient
+import cz.esnhk.artemisMobile.api.ApiResult
 import cz.esnhk.artemisMobile.repository.TOKEN_KEY
 import cz.esnhk.artemisMobile.repository.dataStore
 import cz.esnhk.artemisMobile.services.LoginRequest
@@ -22,6 +23,8 @@ class AuthViewModel(private val context: Context) : ViewModel() {
     var isLoggedIn by mutableStateOf(false)
         private set
 
+    val loginState = mutableStateOf<ApiResult<Unit>>(ApiResult.Success(Unit))
+
     private val dataStore = context.dataStore // see extension below
 
     init {
@@ -31,7 +34,7 @@ class AuthViewModel(private val context: Context) : ViewModel() {
         }
     }
 
-    fun login(username: String, password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun login(username: String, password: String, onSuccess: () -> Unit) {
         // Use an all caps tag as this is the convention
         val TAG = "AUTH_VIEW_MODEL"
 
@@ -41,6 +44,7 @@ class AuthViewModel(private val context: Context) : ViewModel() {
         Log.e(TAG, "===============================================")
 
         viewModelScope.launch {
+            loginState.value = ApiResult.Loading
             try {
                 Log.e(TAG, "About to call API")
                 val response = ApiClient.authService.login(LoginRequest(username, password))
@@ -60,16 +64,17 @@ class AuthViewModel(private val context: Context) : ViewModel() {
                     isLoggedIn = true
 
                     Log.e(TAG, "Calling success callback")
+                    loginState.value = ApiResult.Success(Unit)
                     onSuccess()
-                } else {
+                } else { //TODO: rozlišit chyby
                     Log.e(TAG, "Login failed with code: ${response.code()}")
-                    onError("Invalid credentials")
+                    loginState.value = ApiResult.Error("Invalid credentials")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Exception in login: ${e.javaClass.simpleName}")
                 Log.e(TAG, "Exception message: ${e.message}")
                 e.printStackTrace() // This should print to Logcat regardless of tag filtering
-                onError("Login failed: ${e.message}")
+                loginState.value = ApiResult.Error(e.message ?: "Unknown error")
             }
         }
     }
