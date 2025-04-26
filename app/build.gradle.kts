@@ -59,7 +59,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.material3:material3:1.3.2")
     //koin (pro dependency injection)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
@@ -73,4 +73,17 @@ dependencies {
     implementation(libs.logging.interceptor)
 
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // Kotlin coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    dependencies {
+        // DataStore Preferences
+        implementation("androidx.datastore:datastore-preferences:1.1.4")
+
+    }
 }

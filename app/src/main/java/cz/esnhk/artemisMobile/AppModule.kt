@@ -1,6 +1,7 @@
 package cz.esnhk.artemisMobile
 
 import cz.esnhk.artemisMobile.api.ArtemisApi
+import cz.esnhk.artemisMobile.viewmodels.AuthViewModel
 import cz.esnhk.artemisMobile.viewmodels.StudentViewModel
 import okhttp3.OkHttpClient
 import org.koin.core.module.dsl.viewModel
@@ -16,6 +17,7 @@ val viewModelModule = module {
     // koin však vždy dosadí požadovanou instanci (zde FavouriteCryptoRepository)
     viewModel { StudentViewModel(get()) } //samostatná práce
     //viewModel { AnotherViewModel(get()) } //takto bych vytvořil další viewmodel, který by mohl požadovat např. AnotherRepository ;)
+    viewModel { AuthViewModel(get()) }
 }
 
 val networkModule = module {

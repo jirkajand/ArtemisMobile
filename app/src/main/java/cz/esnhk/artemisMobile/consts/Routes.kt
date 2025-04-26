@@ -6,6 +6,8 @@ object Routes {
     const val Events = "events"
     const val SemesterInfo = "semesterInfo"
 
+    const val Login = "login"
+
     const val CryptoDetail = "cryptoDetail/{cryptoId}"
     const val FavouriteCrypto = "favouriteCrypto"
     const val Settings = "settings"

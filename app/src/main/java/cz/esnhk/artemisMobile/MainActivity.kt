@@ -5,42 +5,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.*
 import cz.esnhk.artemisMobile.consts.Routes
+import cz.esnhk.artemisMobile.repository.DataStoreManager
+import cz.esnhk.artemisMobile.screens.*
 import cz.esnhk.artemisMobile.ui.theme.ArtemisMobileTheme
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import cz.esnhk.artemisMobile.screens.Dashboard
-import cz.esnhk.artemisMobile.screens.EventScreen
-import cz.esnhk.artemisMobile.screens.MyStudents
-import cz.esnhk.artemisMobile.screens.SemesterInfo
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,16 +37,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            MainScreen(navController)
+            val dataStoreManager = remember { DataStoreManager(applicationContext) }
+            val isLoggedIn by dataStoreManager.isLoggedInFlow.collectAsState(initial = false)
+
+            MainScreen(navController, isLoggedIn)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavHostController) {
-    val drawerState =
-        rememberDrawerState(DrawerValue.Closed) //Control whether the drawer (side menu) is open or closed.
+fun MainScreen(navController: NavHostController, isLoggedIn: Boolean) {
+    val drawerState = rememberDrawerState(DrawerValue.Closed) //Control whether the drawer (side menu) is open or closed.
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
@@ -113,7 +98,7 @@ fun MainScreen(navController: NavHostController) {
             Box(modifier = Modifier.padding(innerPadding)) {
                 Text("Welcome to app!")
             }
-            Navigation(navController = navController, innerPadding = innerPadding)
+            Navigation(navController = navController, innerPadding = innerPadding, isLoggedIn = isLoggedIn)
         }
     }
 }
@@ -130,12 +115,24 @@ fun DrawerItem(text: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun Navigation(navController: NavHostController, innerPadding: PaddingValues) {
+fun Navigation(navController: NavHostController, innerPadding: PaddingValues, isLoggedIn: Boolean) {
+    val context = LocalContext.current
+    val dataStoreManager = remember { DataStoreManager(context) }
+    val isLoggedIn by dataStoreManager.isLoggedInFlow.collectAsState(initial = false)
     NavHost(
         navController = navController,
-        startDestination = Routes.Dashboard,
+        startDestination = if (isLoggedIn) Routes.Dashboard else Routes.Login,
         modifier = Modifier.padding(innerPadding)
     ) {
+        composable(Routes.Login) {
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(Routes.Dashboard) {
+                        popUpTo(Routes.Login) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable(Routes.Dashboard) { Dashboard(navController) }
         composable(Routes.MyStudents) { MyStudents(navController) }
         composable(Routes.Events) { EventScreen(navController) }
@@ -147,6 +144,6 @@ fun Navigation(navController: NavHostController, innerPadding: PaddingValues) {
 @Composable
 fun MainScreenPreview() {
     ArtemisMobileTheme {
-        MainScreen(rememberNavController())
+        MainScreen(rememberNavController(), isLoggedIn = false)
     }
 }
