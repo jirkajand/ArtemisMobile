@@ -4,6 +4,7 @@ import android.util.Log
 import cz.esnhk.artemisMobile.api.AuthInterceptor.HeaderLoggingInterceptor
 import cz.esnhk.artemisMobile.repository.DataStoreManager
 import cz.esnhk.artemisMobile.services.AuthService
+import cz.esnhk.artemisMobile.services.EventService
 import cz.esnhk.artemisMobile.services.StudentService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -49,5 +50,21 @@ object ApiClient {
             .build()
 
         return retrofit.create(StudentService::class.java)
+    }
+
+    fun createEventService(dataStoreManager: DataStoreManager): EventService {
+        val client = OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(dataStoreManager))
+            .addInterceptor(HeaderLoggingInterceptor())
+            .addInterceptor(logging)
+            .build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        return retrofit.create(EventService::class.java)
     }
 }

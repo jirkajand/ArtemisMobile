@@ -24,13 +24,25 @@ import androidx.compose.material.icons.Icons
 import cz.esnhk.artemisMobile.R
 import androidx.compose.material.icons.filled.Notifications
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import cz.esnhk.artemisMobile.api.ApiResult
+import cz.esnhk.artemisMobile.entities.Event
+import cz.esnhk.artemisMobile.viewmodels.EventViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun EventScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: EventViewModel = koinViewModel()
 ) {
+    val eventListState by viewModel.eventList.collectAsState()
+
     val tabs = listOf("Upcoming events", "My events", "Past events")
     var selectedTabIndex by remember { mutableStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        viewModel.getEvents()
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TabRow(selectedTabIndex = selectedTabIndex) {
@@ -43,21 +55,37 @@ fun EventScreen(
             }
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-        ) {
-            items(3) { // You can use your own list of events here
-                EventCard()
-                Spacer(modifier = Modifier.height(8.dp))
+        when (eventListState) {
+            is ApiResult.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
             }
+            is ApiResult.Success -> {
+                val events = (eventListState as ApiResult.Success<List<Event>>).data
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                ) {
+                    items(events) { event ->
+                        EventCard(event)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+            is ApiResult.Error -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Error loading events")
+                }
+            }
+            is ApiResult.Idle -> {}
         }
     }
 }
 
 @Composable
-fun EventCard() {
+fun EventCard(event: Event) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(8.dp),
@@ -65,7 +93,10 @@ fun EventCard() {
     ) {
         Row(modifier = Modifier.padding(8.dp)) {
             Image(
-                painter = painterResource(id = R.drawable.coin), // Replace with your drawable
+                painter = if (event.image != null)
+                    rememberAsyncImagePainter(event.image)
+                else
+                    painterResource(id = R.drawable.coin),
                 contentDescription = null,
                 modifier = Modifier
                     .size(120.dp)
@@ -80,22 +111,24 @@ fun EventCard() {
                     .weight(1f)
                     .padding(end = 8.dp)
             ) {
-                Text("25 Mar 2025 2 p.m.", style = MaterialTheme.typography.bodySmall)
-                Text("Taiwan day tw", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(event.start, style = MaterialTheme.typography.bodySmall)
+                Text(event.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Box(
-                    modifier = Modifier
-                        .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text("Culture", style = MaterialTheme.typography.bodySmall)
+                event.categories.firstOrNull()?.let { category ->
+                    Box(
+                        modifier = Modifier
+                            .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(category.name, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text("Experience the taste of Taiwan ✨", style = MaterialTheme.typography.bodySmall)
+                Text(event.excerpt, style = MaterialTheme.typography.bodySmall)
 
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -106,7 +139,7 @@ fun EventCard() {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Notifications, contentDescription = null, tint = Color.Gray)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("0 / 0", style = MaterialTheme.typography.bodySmall)
+                        Text("${event.registeredParticipants} / ${event.maxParticipants}", style = MaterialTheme.typography.bodySmall)
                     }
 
                     TextButton(onClick = { /* TODO: navigate to details */ }) {
