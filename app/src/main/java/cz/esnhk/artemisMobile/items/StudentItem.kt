@@ -23,44 +23,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import cz.esnhk.artemisMobile.entities.InternationalStudent
 import cz.esnhk.artemisMobile.R
 
-/*
-@Composable
-fun StudentItemOldVersion(internationalStudent: InternationalStudent, navController: NavController) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable {
-                /*navController.navigate(Routes.internationalStudentDetail(internationalStudent.id))*/
-            },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        // Obrázek kryptoměny
-        Image(
-             painter = painterResource(R.drawable.coin), //TODO: nahradit obrázek
-             contentDescription = "icon", //TODO: nahradit popis
-             modifier = Modifier.size(48.dp)
-         )
-        Spacer(modifier = Modifier.width(16.dp))
-        // Informace o kryptoměně
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = internationalStudent.firstName + " " + internationalStudent.lastName, fontWeight = FontWeight.Bold)
-        }
-        // Tlačítka
-        IconButton(onClick = {  /*navController.navigate(Routes.internationalStudentDetail(internationalStudent.id))*/ }) {
-            Icon(Icons.Filled.Info, contentDescription = "Detail")
-        }
-    }
-}*/
-
 const val flagUrl = "https://upload.wikimedia.org/wikipedia/en/9/9a/Flag_of_Spain.svg"
+
+// Helper function to safely handle nullable Strings
+private fun safeText(text: String?, fallback: String = "N/A") = text ?: fallback
 
 @Composable
 fun StudentItem(internationalStudent: InternationalStudent, navController: NavController) {
@@ -85,13 +57,13 @@ fun StudentItem(internationalStudent: InternationalStudent, navController: NavCo
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(internationalStudent.homeUniversity)
+                    Text(text = safeText(internationalStudent.homeUniversity))
                 }
 
-                Text("Faculty:" + internationalStudent.faculty)
+                Text(text = "Faculty: " + internationalStudent.faculty)
 
                 Text(
-                    text = "About me:" + internationalStudent.description,
+                    text = "About me: " + safeText(internationalStudent.description),
                     fontStyle = FontStyle.Italic,
                     modifier = Modifier.padding(top = 8.dp)
                 )

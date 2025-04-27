@@ -1,13 +1,17 @@
 package cz.esnhk.artemisMobile.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 // Extension property to get DataStore instance from any context
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth")
@@ -44,5 +48,20 @@ class DataStoreManager(private val context: Context) {
     // Optional: Retrieve token (if needed for API calls etc.)
     val tokenFlow: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[TOKEN_KEY]
+    }
+
+    suspend fun setLoggedIn(loggedIn: Boolean) {
+        context.dataStore.edit { preferences ->
+            if (loggedIn) {
+                preferences[TOKEN_KEY] = getToken().toString()
+            } else {
+                preferences.remove(TOKEN_KEY)
+            }
+        }
+    }
+
+    suspend fun getToken(): String? {
+        val preferences = context.dataStore.data.first()
+        return preferences[TOKEN_KEY]
     }
 }

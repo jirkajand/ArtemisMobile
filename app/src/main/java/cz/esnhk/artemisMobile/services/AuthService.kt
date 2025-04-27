@@ -10,4 +10,11 @@ interface AuthService {
 }
 
 data class LoginRequest(val email: String, val password: String)
-data class LoginResponse(val token: String)
+data class LoginResponse(
+    val refresh: String,
+    val access: String,
+    val email: String,
+    val full_name: String,
+    val type: String,
+    val id: String
+)

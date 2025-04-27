@@ -13,6 +13,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,9 +31,9 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: AuthViewModel = koinViewModel()) {
 
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val loginState by viewModel.loginState
+    val loginState by viewModel.loginState.collectAsState()
 
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -42,9 +44,9 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: AuthViewModel = koinViewM
         ) {
 
             TextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") }
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("email") }
             )
             TextField(
                 value = password,
@@ -57,7 +59,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: AuthViewModel = koinViewM
 
             Button(
                 onClick = {
-                    viewModel.login(username, password, onLoginSuccess)
+                    viewModel.login(email, password)
                 },
                 enabled = loginState !is ApiResult.Loading // disable button while loading
             ) {
@@ -78,6 +80,11 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: AuthViewModel = koinViewM
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = Color.White)
+            }
+        }
+        LaunchedEffect(loginState) {
+            if (loginState is ApiResult.Success) {
+                onLoginSuccess()
             }
         }
     }

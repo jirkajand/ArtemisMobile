@@ -7,6 +7,7 @@ Při úspěšném získání dat vrátíme tyto data uvnitř třídy Success, UI
 Při neúspěchu použijeme třídu Error, do které můžeme přidat přizpůsobenou chybovou hlášku. Stejně tak při vyvolání výjimky. Opět nemáme žádná data k vracení, proto opět použijeme Nothing.
  */
 sealed class ApiResult<out T> {
+    object Idle : ApiResult<Nothing>()
     object Loading : ApiResult<Nothing>()
     data class Success<out T>(val data: T) : ApiResult<T>()
     data class Error(val message: String) : ApiResult<Nothing>()
