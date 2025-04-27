@@ -22,5 +22,5 @@ val repositoryModule = module {
 
     single { StudentRepository(get()) }
 
-    single { EventRepository(get()) } // <-- Přidej tohle!!
+    single { EventRepository(get()) }
 }

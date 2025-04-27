@@ -1,7 +1,13 @@
 package cz.esnhk.artemisMobile.screens
 
+import android.os.Build
+import android.text.Html
+import android.util.Log
+import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +29,8 @@ import androidx.compose.material.icons.Icons
 
 import cz.esnhk.artemisMobile.R
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import cz.esnhk.artemisMobile.api.ApiResult
@@ -61,6 +69,7 @@ fun EventScreen(
                     CircularProgressIndicator()
                 }
             }
+
             is ApiResult.Success -> {
                 val events = (eventListState as ApiResult.Success<List<Event>>).data
                 LazyColumn(
@@ -74,16 +83,19 @@ fun EventScreen(
                     }
                 }
             }
+
             is ApiResult.Error -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("Error loading events")
                 }
             }
+
             is ApiResult.Idle -> {}
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun EventCard(event: Event) {
     Card(
@@ -96,7 +108,7 @@ fun EventCard(event: Event) {
                 painter = if (event.image != null)
                     rememberAsyncImagePainter(event.image)
                 else
-                    painterResource(id = R.drawable.coin),
+                    painterResource(id = R.drawable.calendar_month_24px),
                 contentDescription = null,
                 modifier = Modifier
                     .size(120.dp)
@@ -112,7 +124,11 @@ fun EventCard(event: Event) {
                     .padding(end = 8.dp)
             ) {
                 Text(event.start, style = MaterialTheme.typography.bodySmall)
-                Text(event.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    event.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -128,7 +144,25 @@ fun EventCard(event: Event) {
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text(event.excerpt, style = MaterialTheme.typography.bodySmall)
+
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                ) {
+                    AndroidView(
+                        factory = { context ->
+                            TextView(context).apply {
+                                text = Html.fromHtml(event.excerpt, Html.FROM_HTML_MODE_COMPACT)
+                                textSize = 16f
+                                setTextColor(android.graphics.Color.GRAY)
+                                text = Html.fromHtml(text.toString(), Html.FROM_HTML_MODE_COMPACT)
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -137,9 +171,16 @@ fun EventCard(event: Event) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Notifications, contentDescription = null, tint = Color.Gray)
+                        Image(
+                            painter = painterResource(id = R.drawable.group_24px),
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(Color.Gray),
+                        )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("${event.registeredParticipants} / ${event.maxParticipants}", style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            "${event.registeredParticipants} / ${event.maxParticipants}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
 
                     TextButton(onClick = { /* TODO: navigate to details */ }) {
