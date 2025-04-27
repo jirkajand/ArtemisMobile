@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import cz.esnhk.artemisMobile.api.ApiResult
 import cz.esnhk.artemisMobile.items.StudentItem
-import cz.esnhk.artemisMobile.repository.StudentRepository
 import cz.esnhk.artemisMobile.viewmodels.InternationalStudentViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -156,7 +155,8 @@ fun Dashboard(
                 // Apply filtering to the success data
                 val filteredStudents = students.filter { student ->
                     (selectedSemester == 0 || student.semesters.contains(selectedSemester)) &&
-                            (selectedFaculty == 0 || student.faculty == selectedFaculty)
+                            (selectedFaculty == 0 || student.faculty == selectedFaculty) &&
+                            (student.assignedBuddy == null)
                 }
 
                 LazyColumn {
