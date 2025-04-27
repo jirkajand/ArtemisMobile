@@ -1,5 +1,6 @@
 package cz.esnhk.artemisMobile.items
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,8 +29,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import cz.esnhk.artemisMobile.entities.InternationalStudent
 import cz.esnhk.artemisMobile.R
-
-const val flagUrl = "https://upload.wikimedia.org/wikipedia/en/9/9a/Flag_of_Spain.svg"
+import java.util.Locale
 
 // Helper function to safely handle nullable Strings
 private fun safeText(text: String?, fallback: String = "N/A") = text ?: fallback
@@ -52,8 +52,9 @@ fun StudentItem(internationalStudent: InternationalStudent, navController: NavCo
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AsyncImage(
-                        model = R.drawable.female_24px,
+                        model = getGenderIcon(internationalStudent.sex),
                         contentDescription = "Gender icon",
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(getGenderColor(internationalStudent.sex)),
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -82,16 +83,46 @@ fun StudentItem(internationalStudent: InternationalStudent, navController: NavCo
                 modifier = Modifier.padding(start = 16.dp)
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(flagUrl),
-                    contentDescription = "Spain Flag",
+                    painter = rememberAsyncImagePainter(getFlagUrl(internationalStudent.country)),
+                    contentDescription = "Flag of ${internationalStudent.country}",
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(6.dp)),
                     contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Spain")
+                Text(getCountryName(internationalStudent.country))
             }
         }
+    }
+}
+
+private fun getFlagUrl(countryCode: String?): String {
+    if (countryCode.isNullOrBlank()) return "https://upload.wikimedia.org/wikipedia/commons/8/89/HD_transparent_picture.png" // fallback transparent image
+    return "https://flagcdn.com/w320/${countryCode.lowercase()}.png"
+}
+
+private fun getCountryName(countryCode: String?): String {
+    if (countryCode.isNullOrBlank()) {
+        return "Unknown"
+    }
+    val locale = Locale("en", countryCode)
+    return locale.getDisplayCountry(Locale.ENGLISH).ifBlank { "Unknown" }
+}
+
+@DrawableRes
+private fun getGenderIcon(sex: String?): Int {
+    return when (sex?.lowercase()) {
+        "male" -> R.drawable.male_24px
+        "female" -> R.drawable.female_24px
+        else -> R.drawable.transgender_24px
+    }
+}
+
+private fun getGenderColor(sex: String?): Color {
+    return when (sex?.lowercase()) {
+        "male" -> Color(0xFF2196F3) // Blue for male
+        "female" -> Color(0xFFE91E63) // Pink for female
+        else -> Color.Gray // Default gray if unknown
     }
 }
