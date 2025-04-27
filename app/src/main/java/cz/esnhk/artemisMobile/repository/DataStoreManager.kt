@@ -2,16 +2,15 @@ package cz.esnhk.artemisMobile.repository
 
 import android.content.Context
 import android.util.Log
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.edit
+import com.auth0.android.jwt.JWT
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 // Extension property to get DataStore instance from any context
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth")
@@ -63,5 +62,40 @@ class DataStoreManager(private val context: Context) {
     suspend fun getToken(): String? {
         val preferences = context.dataStore.data.first()
         return preferences[TOKEN_KEY]
+    }
+
+    suspend fun getUserId(): Int {
+        try {
+            val preferences = context.dataStore.data.first()
+            // Assuming your token contains a user ID (you need to extract it from the token)
+            // Decode the token to get user ID, or directly save the user ID in DataStore when logged in.
+            val token = preferences[TOKEN_KEY]
+            return if (token != null) {
+                // Extract user ID from the token here (if needed)
+                getUserIdFromToken(token)
+            } else {
+                return 0
+            }
+        } catch (e: Exception) {
+            Log.e("DataStoreManager", "Error getting user ID: ${e.message}")
+            return 0
+        }
+    }
+
+    fun getUserIdFromToken(token: String?): Int {
+        if (token == null) throw Exception("Token is null")
+
+        try {
+            // Decode the JWT
+            val jwt = JWT(token)
+
+            // Extract user ID from the payload
+            // Assuming the user ID is stored in the "user_id" claim
+            val userId = jwt.getClaim("user_id").asInt()
+
+            return userId?.toInt() ?: 0
+        } catch (e: Exception) {
+            throw Exception("Error decoding token: ${e.message}")
+        }
     }
 }

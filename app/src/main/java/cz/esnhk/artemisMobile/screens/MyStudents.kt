@@ -36,12 +36,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import cz.esnhk.artemisMobile.api.ApiResult
 import cz.esnhk.artemisMobile.items.StudentItem
+import cz.esnhk.artemisMobile.repository.DataStoreManager
 import cz.esnhk.artemisMobile.repository.RepositoryProvider
 import cz.esnhk.artemisMobile.viewmodels.InternationalStudentViewModel
 
 @Composable
 fun MyStudents(
-    navController: NavController
+    navController: NavController,
+    dataStoreManager: DataStoreManager
 ) {
     var selectedSemester by remember { mutableStateOf(0) }
     var isSemesterDropdownExpanded by remember { mutableStateOf(false) }
@@ -72,7 +74,7 @@ fun MyStudents(
 
     // Load students when the screen is shown
     LaunchedEffect(Unit) {
-        viewModel.getStudentsOfByBuddy(1) // TODO: get current user ID
+        viewModel.getStudentsOfByBuddy(dataStoreManager.getUserId()) // TODO: get current user ID
     }
 
     Column(modifier = Modifier.padding(16.dp)) {

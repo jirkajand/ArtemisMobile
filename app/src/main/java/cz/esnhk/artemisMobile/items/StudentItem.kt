@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,8 +40,9 @@ private fun safeText(text: String?, fallback: String = "N/A") = text ?: fallback
 fun StudentItem(internationalStudent: InternationalStudent, navController: NavController) {
     Card(
         modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
+            .padding(5.dp)
+            .fillMaxWidth()
+            .height(200.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFE0E0E0)),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -54,7 +57,11 @@ fun StudentItem(internationalStudent: InternationalStudent, navController: NavCo
                     AsyncImage(
                         model = getGenderIcon(internationalStudent.sex),
                         contentDescription = "Gender icon",
-                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(getGenderColor(internationalStudent.sex)),
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                            getGenderColor(
+                                internationalStudent.sex
+                            )
+                        ),
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -63,24 +70,34 @@ fun StudentItem(internationalStudent: InternationalStudent, navController: NavCo
 
                 Text(text = "Faculty: " + internationalStudent.faculty)
 
-                Text(
-                    text = "About me: " + safeText(internationalStudent.description),
-                    fontStyle = FontStyle.Italic,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                Button(
-                    onClick = { /* Handle take action */ },
-                    modifier = Modifier.padding(top = 12.dp)
+                Column(
+                    modifier = Modifier
+                        .weight(1f) // fill the remaining vertical space
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Text("Take student")
+                    Text(
+                        text = "About me: " + safeText(internationalStudent.description),
+                        fontStyle = FontStyle.Italic,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                if (internationalStudent.assignedBuddy == null) {
+                    Button(
+                        onClick = { /* TODO Handle take action */ },
+                        modifier = Modifier.padding(top = 12.dp)
+                    ) {
+                        Text("Take student")
+                    }
                 }
             }
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(start = 16.dp)
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .width(80.dp)
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(getFlagUrl(internationalStudent.country)),
