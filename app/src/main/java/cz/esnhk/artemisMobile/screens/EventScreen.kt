@@ -44,6 +44,8 @@ fun EventScreen(
     viewModel: EventViewModel = koinViewModel()
 ) {
     val eventListState by viewModel.eventList.collectAsState()
+    val upcomingEvents by viewModel.upcomingEvents.collectAsState()
+    val pastEvents by viewModel.pastEvents.collectAsState()
 
     val tabs = listOf("Upcoming events", "My events", "Past events")
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -71,13 +73,18 @@ fun EventScreen(
             }
 
             is ApiResult.Success -> {
-                val events = (eventListState as ApiResult.Success<List<Event>>).data
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(8.dp)
                 ) {
-                    items(events) { event ->
+                    val eventsToShow = when (selectedTabIndex) {
+                        0 -> upcomingEvents
+                        1 -> upcomingEvents // Placeholder for "My events" tab (for now we reuse)
+                        2 -> pastEvents
+                        else -> emptyList()
+                    }
+                    items(eventsToShow) { event ->
                         EventCard(event)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -86,7 +93,8 @@ fun EventScreen(
 
             is ApiResult.Error -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Error loading events")
+                    val errorMessage = (eventListState as ApiResult.Error).message
+                    Text("Error loading events: $errorMessage")
                 }
             }
 
@@ -94,6 +102,7 @@ fun EventScreen(
         }
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
