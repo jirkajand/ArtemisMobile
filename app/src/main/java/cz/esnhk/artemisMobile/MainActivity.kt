@@ -21,12 +21,15 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -47,6 +50,7 @@ import cz.esnhk.artemisMobile.screens.LoginScreen
 import cz.esnhk.artemisMobile.screens.MyStudents
 import cz.esnhk.artemisMobile.screens.SemesterInfo
 import cz.esnhk.artemisMobile.ui.theme.ArtemisMobileTheme
+import cz.esnhk.artemisMobile.viewmodels.AuthViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -96,6 +100,10 @@ fun MainScreen(
     val scope = rememberCoroutineScope()
     val isLoggedIn by isLoggedInFlow.collectAsState(initial = false)
 
+    val context = LocalContext.current
+    val authViewModel = remember { AuthViewModel(context, dataStoreManager) }
+    val showLogoutDialog = remember { mutableStateOf(false) }
+
     if (isLoggedIn) {
         ModalNavigationDrawer(
             drawerState = drawerState,
@@ -119,14 +127,55 @@ fun MainScreen(
                         scope.launch { drawerState.close() }
                         navController.navigate(Routes.SemesterInfo)
                     }
+                    HorizontalDivider()
+                    DrawerItem("Logout") {
+                        showLogoutDialog.value = true
+                    }
                 }
             }
         ) {
-            MainScaffold(navController, drawerState, scope, isLoggedInFlow, dataStoreManager)
+            MainScaffold(navController, drawerState, scope, isLoggedInFlow, dataStoreManager, showLogoutDialog)
         }
     } else {
-        MainScaffold(navController, drawerState, scope, isLoggedInFlow, dataStoreManager)
+        MainScaffold(navController, drawerState, scope, isLoggedInFlow, dataStoreManager, showLogoutDialog)
     }
+
+    // Logout Confirmation Dialog
+    if (showLogoutDialog.value) {
+        LogoutConfirmationDialog(
+            onDismiss = { showLogoutDialog.value = false },
+            onConfirm = {
+                // Handle logout
+                scope.launch {
+                    authViewModel.logout()  // Perform the logout action
+                    dataStoreManager.setLoggedIn(false)  // Update login state
+                    navController.navigate(Routes.Login) {
+                        popUpTo(0)
+                    }
+                    showLogoutDialog.value = false  // Close the dialog
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun LogoutConfirmationDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Confirm Logout") },
+        text = { Text("Are you sure you want to log out?") },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -136,7 +185,8 @@ fun MainScaffold(
     drawerState: DrawerState,
     scope: CoroutineScope,
     isLoggedInFlow: StateFlow<Boolean>,
-    dataStoreManager: DataStoreManager
+    dataStoreManager: DataStoreManager,
+    showLogoutDialog: MutableState<Boolean>  // New parameter for showing the dialog
 ) {
     val isLoggedIn by isLoggedInFlow.collectAsState(initial = false)
     Scaffold(
