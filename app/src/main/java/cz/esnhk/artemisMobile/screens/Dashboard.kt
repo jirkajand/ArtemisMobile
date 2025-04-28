@@ -129,7 +129,7 @@ fun Dashboard(
                     DropdownMenuItem(
                         text = { Text(facultyName) },
                         onClick = {
-                            selectedSemester = facultyId
+                            selectedFaculty = facultyId
                             isSemesterDropdownExpanded = false
                         }
                     )
